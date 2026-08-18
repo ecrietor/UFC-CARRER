@@ -1,4 +1,3 @@
-# UFC-CARRER
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Star, Swords, Trophy, Flame, Shield, Brain, Zap, Activity,
@@ -8,7 +7,7 @@ import {
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
 } from "recharts";
-
+ 
 /* ============================== DESIGN TOKENS ============================== */
 const C = {
   bg: "#0A0C10",
@@ -27,7 +26,7 @@ const C = {
   steel: "#4E9CC4",
   steelSoft: "#7FBEDE",
 };
-
+ 
 const FONT_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 .uf-display { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -52,14 +51,14 @@ const FONT_CSS = `
   .uf-card, .uf-bar-fill, .uf-fadein, .uf-pulse, .uf-btn { animation: none !important; transition: none !important; }
 }
 `;
-
+ 
 /* ============================== GAME DATA ============================== */
 const ATTR_KEYS = ["stk", "sub", "qi", "tdd", "guarda", "cardio"];
 const ATTR_LABELS = { stk: "STK", sub: "SUB", qi: "QI DE LUTA", tdd: "TDD", guarda: "GUARDA", cardio: "CARDIO" };
 const ATTR_ICONS = { stk: Swords, sub: VenetianMask, qi: Brain, tdd: Shield, guarda: Shield, cardio: Activity };
 const STAR_KEYS = ["chin", "ko"];
 const STAR_LABELS = { chin: "QUEIXO", ko: "PODER DE NOCAUTE" };
-
+ 
 const LEGENDS = [
   { name: "Georges St-Pierre", style: "Wrestling / Boxe", stk: 78, sub: 75, qi: 90, tdd: 96, guarda: 85, cardio: 92, chin: 88, ko: 70 },
   { name: "Khabib Nurmagomedov", style: "Sambo / Wrestling", stk: 65, sub: 90, qi: 88, tdd: 98, guarda: 82, cardio: 95, chin: 90, ko: 68 },
@@ -74,7 +73,7 @@ const LEGENDS = [
   { name: "Conor McGregor", style: "Boxe / Karatê", stk: 90, sub: 50, qi: 85, tdd: 55, guarda: 72, cardio: 65, chin: 70, ko: 95 },
   { name: "Stipe Miocic", style: "Boxe / Wrestling", stk: 82, sub: 60, qi: 83, tdd: 80, guarda: 78, cardio: 96, chin: 90, ko: 84 },
 ];
-
+ 
 const BOSSES = [
   {
     name: 'Charles "do Bronx" Oliveira',
@@ -105,7 +104,7 @@ const BOSSES = [
     ovr: 98, stk: 78, sub: 88, qi: 99, tdd: 96, guarda: 95, cardio: 94, chin: 88, ko: 80,
   },
 ];
-
+ 
 /* ============================== NACIONALIDADES ============================== */
 const NATIONALITIES = [
   { code: "BR", name: "Brasil", flag: "🇧🇷", tier: 1 },
@@ -142,43 +141,43 @@ const NATIONALITIES = [
   { code: "MA", name: "Marrocos", flag: "🇲🇦", tier: 3 },
   { code: "JM", name: "Jamaica", flag: "🇯🇲", tier: 3 },
 ];
-
+ 
 const TIER_INFO = {
   1: { label: "Tier 1 — Hype Máximo", desc: "1.5x Hype inicial · pressão psicológica escalonada em derrotas", multiplier: 1.5, color: C.gold },
   2: { label: "Tier 2 — Equilíbrio", desc: "1.2x Hype inicial · risco/retorno padrão", multiplier: 1.2, color: C.steelSoft },
   3: { label: "Tier 3 — Hype Orgânico", desc: "1.0x Hype inicial · hype só cresce com KO/SUB", multiplier: 1.0, color: C.textMuted },
 };
-
+ 
 const ARCHETYPES = [
   { id: "STK", name: "Striker", desc: "Bônus inicial em volume e precisão em pé.", icon: Swords, boost: { stk: 6, ko: 4 } },
   { id: "GRP", name: "Grappler", desc: "Bônus inicial em controle de solo e pressão isométrica.", icon: Shield, boost: { sub: 6, tdd: 4 } },
   { id: "ALL", name: "All-rounder", desc: "Perfil híbrido, atributos equilibrados.", icon: CircleDot, boost: { qi: 3, cardio: 3, guarda: 2 } },
 ];
-
+ 
 const clamp = (n, min = 0, max = 99) => Math.max(min, Math.min(max, n));
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const pick = (arr) => arr[randInt(0, arr.length - 1)];
-
+ 
 function calcOVR(attrs) {
   const core = ATTR_KEYS.reduce((s, k) => s + (attrs[k] || 0), 0);
   const star = STAR_KEYS.reduce((s, k) => s + (attrs[k] || 0), 0);
   return clamp(Math.round((core + star * 0.75) / 7.5), 1, 99);
 }
-
+ 
 function tierLabel(ovr) {
   if (ovr >= 99) return { label: "O Fenômeno", sub: "G.O.A.T.", color: C.gold };
   if (ovr >= 90) return { label: "Lenda do Top 10", sub: "O Craque", color: C.goldSoft };
   if (ovr >= 80) return { label: "Contender", sub: "Ranqueado", color: C.steelSoft };
   return { label: "Card Preliminar", sub: "O Novato", color: C.textMuted };
 }
-
+ 
 function durabilityInfo(d) {
   if (d > 70) return { label: "Impecável", color: C.steelSoft };
   if (d > 40) return { label: "Estável", color: C.goldSoft };
   if (d > 15) return { label: "Desgastada", color: "#D68A3E" };
   return { label: "Crítica", color: C.crimson };
 }
-
+ 
 /* ============================== FIGHT SIM ============================== */
 function simulateFight({ playerOVR, attrs, oppOVR, tempMod = 0 }) {
   const playerScore = playerOVR + tempMod + randInt(-8, 8);
@@ -198,14 +197,14 @@ function simulateFight({ playerOVR, attrs, oppOVR, tempMod = 0 }) {
   let bonus = null;
   if (win && (method === "Nocaute" || method === "Finalização") && Math.random() < 0.3) bonus = "Performance da Noite";
   else if (margin < 4 && Math.random() < 0.22) bonus = "Luta da Noite";
-
+ 
   let durabilityLoss = randInt(3, 9);
   if (!win) durabilityLoss += randInt(4, 8);
   if (method === "Nocaute" && !win) durabilityLoss += randInt(3, 6);
-
+ 
   return { win, method, bonus, durabilityLoss, margin };
 }
-
+ 
 /* ============================== SMALL UI PARTS ============================== */
 function AttrBar({ label, value, donor, accent }) {
   return (
@@ -221,7 +220,7 @@ function AttrBar({ label, value, donor, accent }) {
     </div>
   );
 }
-
+ 
 function StarStat({ label, value, donor }) {
   const stars = Math.round(value / 20);
   return (
@@ -237,7 +236,7 @@ function StarStat({ label, value, donor }) {
     </div>
   );
 }
-
+ 
 function Badge({ children, color = C.textMuted, bg = "transparent", border }) {
   return (
     <span className="uf-display uf-10 px-2 py-1 rounded" style={{ color, background: bg, border: border ? `1px solid ${border}` : "none" }}>
@@ -245,14 +244,14 @@ function Badge({ children, color = C.textMuted, bg = "transparent", border }) {
     </span>
   );
 }
-
+ 
 /* ============================== START SCREEN ============================== */
 function StartScreen({ onStart }) {
   const [name, setName] = useState("");
   const [archetype, setArchetype] = useState("ALL");
   const [difficulty, setDifficulty] = useState("amador");
   const [nationality, setNationality] = useState(NATIONALITIES[0]);
-
+ 
   return (
     <div className="max-w-2xl mx-auto px-5 py-10 uf-fadein">
       <div className="text-center mb-10">
@@ -260,7 +259,7 @@ function StartScreen({ onStart }) {
         <h1 className="uf-display text-5xl font-bold" style={{ color: C.textPrimary }}>UFC <span style={{ color: C.gold }}>FENÔMENO</span></h1>
         <p className="uf-body text-sm mt-3" style={{ color: C.textMuted }}>Herde atributos de lendas do octógono. Construa o G.O.A.T.</p>
       </div>
-
+ 
       <div className="mb-7">
         <label className="uf-display text-xs tracking-wider block mb-2" style={{ color: C.textMuted }}>Nome do Lutador</label>
         <input
@@ -271,7 +270,7 @@ function StartScreen({ onStart }) {
           style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.textPrimary }}
         />
       </div>
-
+ 
       <div className="mb-7">
         <label className="uf-display text-xs tracking-wider block mb-3" style={{ color: C.textMuted }}>Nacionalidade</label>
         <div className="p-3 rounded-xl mb-3 flex items-center gap-3" style={{ background: C.surfaceRaised, border: `1px solid ${C.border}` }}>
@@ -304,7 +303,7 @@ function StartScreen({ onStart }) {
           })}
         </div>
       </div>
-
+ 
       <div className="mb-7">
         <label className="uf-display text-xs tracking-wider block mb-3" style={{ color: C.textMuted }}>Arquétipo</label>
         <div className="grid grid-cols-3 gap-3">
@@ -329,7 +328,7 @@ function StartScreen({ onStart }) {
           })}
         </div>
       </div>
-
+ 
       <div className="mb-9">
         <label className="uf-display text-xs tracking-wider block mb-3" style={{ color: C.textMuted }}>Modo de Dificuldade</label>
         <div className="grid grid-cols-2 gap-3">
@@ -352,7 +351,7 @@ function StartScreen({ onStart }) {
           })}
         </div>
       </div>
-
+ 
       <button
         onClick={() => onStart({ name: name.trim() || "Lutador Anônimo", archetype, difficulty, nationality })}
         className="uf-btn uf-display w-full py-4 rounded-xl text-sm tracking-wider flex items-center justify-center gap-2"
@@ -363,7 +362,7 @@ function StartScreen({ onStart }) {
     </div>
   );
 }
-
+ 
 /* ============================== DRAFT SCREEN ============================== */
 function DraftScreen({ session, onComplete }) {
   const [pool, setPool] = useState(() => [...LEGENDS].sort(() => Math.random() - 0.5));
@@ -372,13 +371,13 @@ function DraftScreen({ session, onComplete }) {
   const [donors, setDonors] = useState({});
   const [rerolls, setRerolls] = useState(session.difficulty === "amador" ? 1 : 0);
   const [flash, setFlash] = useState(null);
-
+ 
   const legend = pool[current];
   const allKeys = [...ATTR_KEYS, ...STAR_KEYS];
   const remainingKeys = allKeys.filter((k) => !(k in filled));
   const slotsFilled = Object.keys(filled).length;
   const isPro = session.difficulty === "pro";
-
+ 
   function steal(key) {
     const val = legend[key];
     const newFilled = { ...filled, [key]: val };
@@ -387,14 +386,14 @@ function DraftScreen({ session, onComplete }) {
     setDonors(newDonors);
     setFlash({ key, val });
     setTimeout(() => setFlash(null), 550);
-
+ 
     if (Object.keys(newFilled).length >= 8) {
       setTimeout(() => onComplete({ attrs: newFilled, donors: newDonors }), 650);
     } else {
       setTimeout(() => setCurrent((c) => (c + 1) % pool.length), 400);
     }
   }
-
+ 
   function reroll() {
     if (rerolls <= 0) return;
     setRerolls((r) => r - 1);
@@ -408,7 +407,7 @@ function DraftScreen({ session, onComplete }) {
       return arr;
     });
   }
-
+ 
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 uf-fadein">
       <div className="flex items-center justify-between mb-6">
@@ -422,7 +421,7 @@ function DraftScreen({ session, onComplete }) {
           ))}
         </div>
       </div>
-
+ 
       {legend && (
         <div className="uf-card p-5 rounded-2xl mb-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
           <div className="flex items-center justify-between mb-4">
@@ -432,7 +431,7 @@ function DraftScreen({ session, onComplete }) {
             </div>
             <Badge color={C.gold} border={C.gold}>{isPro ? "MODO PRO" : "MODO AMADOR"}</Badge>
           </div>
-
+ 
           <div className="grid grid-cols-4 gap-2">
             {allKeys.map((k) => {
               const already = k in filled;
@@ -464,7 +463,7 @@ function DraftScreen({ session, onComplete }) {
               );
             })}
           </div>
-
+ 
           {isPro && (
             <p className="uf-body uf-11 mt-3" style={{ color: C.textFaint }}>
               Números ocultos — use seu conhecimento sobre o estilo real do atleta para escolher onde roubar.
@@ -472,7 +471,7 @@ function DraftScreen({ session, onComplete }) {
           )}
         </div>
       )}
-
+ 
       <div className="flex items-center justify-between">
         <button
           onClick={reroll}
@@ -494,7 +493,7 @@ function DraftScreen({ session, onComplete }) {
     </div>
   );
 }
-
+ 
 /* ============================== RADAR ============================== */
 function AttrRadar({ attrs }) {
   const data = ATTR_KEYS.map((k) => ({ attr: ATTR_LABELS[k], value: attrs[k] || 0 }));
@@ -510,7 +509,7 @@ function AttrRadar({ attrs }) {
     </div>
   );
 }
-
+ 
 /* ============================== FIGHTER SHEET TAB ============================== */
 function FighterTab({ fighter }) {
   const ovr = calcOVR(fighter.attrs);
@@ -528,25 +527,25 @@ function FighterTab({ fighter }) {
     { done: fighter.champTitles && Object.values(fighter.champTitles).filter(Boolean).length >= 2, label: "Campeão Champ-Champ" },
     { done: fighter.bossesDefeated.length >= BOSSES.length, label: `Todos os portões (${fighter.bossesDefeated.length}/${BOSSES.length})` },
   ];
-
+ 
   return (
     <div className="uf-fadein">
       <div className="uf-card p-5 rounded-2xl mb-4" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <AttrRadar attrs={fighter.attrs} />
       </div>
-
+ 
       <div className="grid grid-cols-1 gap-1 mb-5">
         {ATTR_KEYS.map((k) => (
           <AttrBar key={k} label={ATTR_LABELS[k]} value={fighter.attrs[k]} donor={fighter.donors[k]} accent={C.steel} />
         ))}
       </div>
-
+ 
       <div className="grid grid-cols-2 gap-3 mb-5">
         {STAR_KEYS.map((k) => (
           <StarStat key={k} label={STAR_LABELS[k]} value={fighter.attrs[k]} donor={fighter.donors[k]} />
         ))}
       </div>
-
+ 
       <div className="uf-card p-4 rounded-xl mb-3" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <div className="flex justify-between items-center mb-2">
           <span className="uf-display text-xs tracking-wider" style={{ color: C.textMuted }}>RESILIÊNCIA DO CORPO</span>
@@ -556,7 +555,7 @@ function FighterTab({ fighter }) {
           <div className="h-full rounded-full uf-bar-fill" style={{ width: `${fighter.durability}%`, background: dur.color }} />
         </div>
       </div>
-
+ 
       <div className="uf-card p-4 rounded-xl mb-3" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <div className="uf-display text-xs tracking-wider mb-3" style={{ color: C.textMuted }}>REQUISITOS — O CRAQUE (OVR 90)</div>
         {craqueReqs.map((r, i) => (
@@ -566,7 +565,7 @@ function FighterTab({ fighter }) {
           </div>
         ))}
       </div>
-
+ 
       <div className="uf-card p-4 rounded-xl" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <div className="uf-display text-xs tracking-wider mb-3" style={{ color: C.textMuted }}>REQUISITOS — O FENÔMENO (OVR 99)</div>
         {fenomenoReqs.map((r, i) => (
@@ -579,7 +578,7 @@ function FighterTab({ fighter }) {
     </div>
   );
 }
-
+ 
 /* ============================== CAREER TAB ============================== */
 function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBoss, onRetire, onRecover }) {
   const ovr = calcOVR(fighter.attrs);
@@ -587,7 +586,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
   const isTier1 = fighter.nationality && fighter.nationality.tier === 1;
   const pressurePct = Math.min((fighter.pressureStacks || 0) * 20, 60);
   const recoveryLocked = fighter.recoveryUsedThisCycle || fighter.durability >= 100;
-
+ 
   return (
     <div className="uf-fadein">
       <div className="grid grid-cols-3 gap-2 mb-5">
@@ -604,7 +603,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           <div className="uf-display uf-10" style={{ color: C.textFaint }}>SUBs</div>
         </div>
       </div>
-
+ 
       <div className="uf-card p-4 rounded-xl mb-4" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <div className="flex items-center gap-2 mb-1">
           <Flame size={14} color={C.gold} />
@@ -635,7 +634,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           Simular 5 lutas rápido
         </button>
       </div>
-
+ 
       <div className="uf-card p-4 rounded-xl mb-4" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
         <div className="uf-display text-xs tracking-wider mb-1" style={{ color: C.textMuted }}>RECUPERAÇÃO & GESTÃO DE RISCO</div>
         <div className="uf-body uf-11 mb-3" style={{ color: C.textFaint }}>
@@ -684,7 +683,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           <div className="uf-body uf-10 mt-2" style={{ color: C.textFaint }}>Já usou recuperação neste ciclo — disponível de novo após a próxima luta.</div>
         )}
       </div>
-
+ 
       {canChangeWeight && (
         <button onClick={onWeightChange} className="uf-btn uf-card w-full text-left p-4 rounded-xl mb-4 flex items-center justify-between" style={{ background: C.surface, border: `1px solid ${C.goldSoft}` }}>
           <div>
@@ -694,7 +693,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           <ArrowUpCircle size={20} color={C.goldSoft} />
         </button>
       )}
-
+ 
       <div className="mb-4">
         <div className="uf-display text-xs tracking-wider mb-2" style={{ color: C.textMuted }}>PORTÕES DE VALIDAÇÃO — GATEKEEPERS DE ELITE</div>
         <div className="space-y-2">
@@ -726,7 +725,7 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           })}
         </div>
       </div>
-
+ 
       <div className="mb-4">
         <div className="uf-display text-xs tracking-wider mb-2" style={{ color: C.textMuted }}>ÚLTIMOS RESULTADOS</div>
         <div className="uf-scrollbar space-y-1 max-h-40 overflow-y-auto pr-1">
@@ -738,19 +737,19 @@ function CareerTab({ fighter, onFight, onQuickSim, onWeightChange, onChallengeBo
           ))}
         </div>
       </div>
-
+ 
       <button onClick={onRetire} className="uf-btn uf-body text-xs w-full py-3 rounded-lg" style={{ background: "transparent", border: `1px solid ${C.crimson}`, color: C.crimsonSoft }}>
         Aposentar Agora
       </button>
     </div>
   );
 }
-
+ 
 /* ============================== HALL OF FAME TAB ============================== */
 function HallOfFameTab() {
   const [entries, setEntries] = useState(null);
   const [error, setError] = useState(false);
-
+ 
   useEffect(() => {
     (async () => {
       try {
@@ -771,7 +770,7 @@ function HallOfFameTab() {
       }
     })();
   }, []);
-
+ 
   return (
     <div className="uf-fadein">
       <div className="uf-display text-xs tracking-wider mb-3" style={{ color: C.textMuted }}>HALL DA FAMA (SALVO NESTE DISPOSITIVO)</div>
@@ -798,7 +797,7 @@ function HallOfFameTab() {
     </div>
   );
 }
-
+ 
 /* ============================== RETIRED SCREEN ============================== */
 function RetiredScreen({ fighter, reason, onNewCareer }) {
   const ovr = calcOVR(fighter.attrs);
@@ -813,7 +812,7 @@ function RetiredScreen({ fighter, reason, onNewCareer }) {
     { label: "Vitórias vs Hall of Famers", value: fighter.bossesDefeated.length, equiv: "Jogos pela seleção" },
     { label: "Defesas de Cinturão", value: fighter.titleDefenses, equiv: "Títulos de liga" },
   ];
-
+ 
   useEffect(() => {
     (async () => {
       try {
@@ -836,7 +835,7 @@ function RetiredScreen({ fighter, reason, onNewCareer }) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     })();
   }, []);
-
+ 
   return (
     <div className="max-w-2xl mx-auto px-5 py-10 uf-fadein">
       <div className="text-center mb-8">
@@ -847,7 +846,7 @@ function RetiredScreen({ fighter, reason, onNewCareer }) {
         </h1>
         <div className="uf-display text-sm mt-1" style={{ color: tier.color }}>{tier.label} — {tier.sub} · OVR {ovr}</div>
       </div>
-
+ 
       <div className="grid grid-cols-1 gap-2 mb-8">
         {stats.map((s, i) => (
           <div key={i} className="uf-card p-4 rounded-xl flex items-center justify-between" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
@@ -859,20 +858,20 @@ function RetiredScreen({ fighter, reason, onNewCareer }) {
           </div>
         ))}
       </div>
-
+ 
       <button onClick={onNewCareer} className="uf-btn uf-display w-full py-4 rounded-xl text-sm tracking-wider" style={{ background: C.gold, color: "#0A0C10", fontWeight: 700 }}>
         Iniciar Nova Carreira
       </button>
     </div>
   );
 }
-
+ 
 /* ============================== HUB ============================== */
 function Hub({ fighter, dispatch, onRetireFinal }) {
   const [tab, setTab] = useState("ficha");
   const ovr = calcOVR(fighter.attrs);
   const tier = tierLabel(ovr);
-
+ 
   function resolveFight(oppOVR, trashTalk, isBoss = false, bossName = null) {
     let tempMod = 0;
     let hypeDelta = 0;
@@ -883,7 +882,7 @@ function Hub({ fighter, dispatch, onRetireFinal }) {
       if (success) { tempMod = 4; hypeDelta = 15; talkMsg = "Provocação certeira. "; }
       else { tempMod = -6; hypeDelta = -20; talkMsg = "A provocação se voltou contra você. "; }
     }
-
+ 
     // Pressão psicológica (Tier 1): escalona 20% por derrota consecutiva, até 60%.
     const tier = fighter.nationality ? fighter.nationality.tier : 3;
     let pressureApplied = false;
@@ -892,34 +891,34 @@ function Hub({ fighter, dispatch, onRetireFinal }) {
       tempMod -= Math.round(ovr * pct);
       pressureApplied = true;
     }
-
+ 
     const result = simulateFight({ playerOVR: ovr, attrs: fighter.attrs, oppOVR, tempMod });
     dispatch({ type: "APPLY_FIGHT", result, hypeDelta, talkMsg, isBoss, bossName, pressureApplied });
   }
-
+ 
   function onFight(trashTalk) {
     const oppOVR = clamp(ovr + randInt(-10, 6), 40, 96);
     resolveFight(oppOVR, trashTalk, false);
   }
-
+ 
   function onQuickSim() {
     dispatch({ type: "QUICK_SIM_START" });
   }
-
+ 
   function onChallengeBoss(boss) {
     resolveFight(boss.ovr, false, true, boss.name);
   }
-
+ 
   function onRecover(kind) {
     dispatch({ type: "RECOVER", kind });
   }
-
+ 
   const tabs = [
     { id: "ficha", label: "Ficha", icon: Users },
     { id: "carreira", label: "Carreira", icon: Trophy },
     { id: "fama", label: "Hall da Fama", icon: Award },
   ];
-
+ 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-16">
       <div className="uf-card p-4 rounded-2xl mb-5 flex items-center justify-between" style={{ background: `linear-gradient(135deg, ${C.surfaceRaised}, ${C.surface})`, border: `1px solid ${C.border}` }}>
@@ -937,7 +936,7 @@ function Hub({ fighter, dispatch, onRetireFinal }) {
           <div className="uf-display uf-9" style={{ color: C.textFaint }}>OVR</div>
         </div>
       </div>
-
+ 
       <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: C.surface, border: `1px solid ${C.borderSoft}` }}>
         {tabs.map((t) => {
           const Icon = t.icon;
@@ -954,7 +953,7 @@ function Hub({ fighter, dispatch, onRetireFinal }) {
           );
         })}
       </div>
-
+ 
       {tab === "ficha" && <FighterTab fighter={fighter} />}
       {tab === "carreira" && (
         <CareerTab
@@ -971,7 +970,7 @@ function Hub({ fighter, dispatch, onRetireFinal }) {
     </div>
   );
 }
-
+ 
 /* ============================== APP ============================== */
 function makeFighter({ name, archetype, difficulty, attrs, donors, nationality }) {
   const boost = ARCHETYPES.find((a) => a.id === archetype)?.boost || {};
@@ -995,7 +994,7 @@ function makeFighter({ name, archetype, difficulty, attrs, donors, nationality }
     log: [],
   };
 }
-
+ 
 function fighterReducer(fighter, action) {
   if (action.type === "WEIGHT_CHANGE") {
     return {
@@ -1005,7 +1004,7 @@ function fighterReducer(fighter, action) {
       log: [...fighter.log, { win: true, text: `⬆ Subiu para Peso Leve. Ganhou massa: +STK, −CARDIO.` }],
     };
   }
-
+ 
   if (action.type === "RECOVER") {
     if (fighter.recoveryUsedThisCycle) return fighter;
     const isElite = action.kind === "elite";
@@ -1020,23 +1019,23 @@ function fighterReducer(fighter, action) {
       log: [...fighter.log, { win: true, text: `🩹 ${label}: +${restore} durabilidade · crescimento −${Math.round((1 - penalty.multiplier) * 100)}% por ${penalty.cyclesRemaining} luta(s)` }],
     };
   }
-
+ 
   if (action.type === "APPLY_FIGHT") {
     const { result, hypeDelta, talkMsg, isBoss, bossName, pressureApplied } = action;
     const rank = randInt(1, 15);
     let f = { ...fighter };
     const tier = f.nationality ? f.nationality.tier : 3;
-
+ 
     f.durability = clamp(f.durability - result.durabilityLoss, 0, 100);
-
+ 
     const wasChamp = !!(f.champTitles && f.champTitles[f.weightClass]);
-
+ 
     if (result.win) {
       const isFinish = result.method === "Nocaute" || result.method === "Finalização";
       const winHypeGain = tier === 3 ? (isFinish ? 8 : 0) : 5;
       f.hype = clamp(f.hype + hypeDelta + winHypeGain, 0, 100);
       f.pressureStacks = 0;
-
+ 
       f.consecutiveWins = (f.consecutiveWins || 0) + 1;
       f.record = { ...f.record, wins: f.record.wins + 1 };
       if (rank <= 5) f.top5Wins = (f.top5Wins || 0) + 1;
@@ -1044,17 +1043,17 @@ function fighterReducer(fighter, action) {
       else if (result.method === "Finalização") f.subs += 1;
       else f.decisions += 1;
       if (result.bonus === "Performance da Noite" || result.bonus === "Luta da Noite") f.bonuses += 1;
-
+ 
       if (isBoss) {
         f.bossesDefeated = f.bossesDefeated.includes(bossName) ? f.bossesDefeated : [...f.bossesDefeated, bossName];
       }
-
+ 
       if (wasChamp) {
         f.titleDefenses = (f.titleDefenses || 0) + 1;
       } else if (f.consecutiveWins >= 5 && calcOVR(f.attrs) >= 85) {
         f.champTitles = { ...f.champTitles, [f.weightClass]: true };
       }
-
+ 
       // Treino / crescimento orgânico de OVR — reduzido enquanto houver penalidade de recuperação ativa.
       const growthRate = f.growthPenalty && f.growthPenalty.cyclesRemaining > 0 ? f.growthPenalty.multiplier : 1;
       let growthTxt = "";
@@ -1066,7 +1065,7 @@ function fighterReducer(fighter, action) {
           growthTxt = ` · Treino: +1 ${ATTR_LABELS[gk] || STAR_LABELS[gk]}`;
         }
       }
-
+ 
       const oppLabel = isBoss ? bossName : `Contender #${rank}`;
       const bonusTxt = result.bonus ? ` · Bônus: ${result.bonus}` : "";
       const pressureTxt = pressureApplied ? " · Sob pressão psicológica" : "";
@@ -1076,7 +1075,7 @@ function fighterReducer(fighter, action) {
       f.consecutiveWins = 0;
       f.record = { ...f.record, losses: f.record.losses + 1 };
       if (tier === 1) f.pressureStacks = (f.pressureStacks || 0) + 1;
-
+ 
       const oppLabel = isBoss ? bossName : `Contender #${rank}`;
       let beltTxt = "";
       if (wasChamp) {
@@ -1086,26 +1085,26 @@ function fighterReducer(fighter, action) {
       const pressureTxt = pressureApplied ? " · Sob pressão psicológica" : "";
       f.log = [...f.log, { win: false, text: `${talkMsg}D (${result.method}) vs ${oppLabel}${beltTxt}${pressureTxt}` }];
     }
-
+ 
     // Avança o ciclo de recuperação/crescimento a cada luta.
     f.recoveryUsedThisCycle = false;
     if (f.growthPenalty) {
       const remaining = f.growthPenalty.cyclesRemaining - 1;
       f.growthPenalty = remaining > 0 ? { ...f.growthPenalty, cyclesRemaining: remaining } : null;
     }
-
+ 
     return f;
   }
   return fighter;
 }
-
+ 
 export default function App() {
   const [stage, setStage] = useState("start"); // start | draft | hub | retired
   const [session, setSession] = useState(null);
   const [fighter, setFighter] = useState(null);
   const [retireReason, setRetireReason] = useState("");
   const quickSimRef = useRef(false);
-
+ 
   function dispatch(action) {
     setFighter((f) => {
       const next = fighterReducer(f, action);
@@ -1115,23 +1114,23 @@ export default function App() {
       return next;
     });
   }
-
+ 
   function finishCareer(f, reason) {
     setRetireReason(reason);
     setStage("retired");
   }
-
+ 
   function onStart(sess) {
     setSession(sess);
     setStage("draft");
   }
-
+ 
   function onDraftComplete({ attrs, donors }) {
     const f = makeFighter({ ...session, attrs, donors });
     setFighter(f);
     setStage("hub");
   }
-
+ 
   function onQuickSim() {
     let f = fighter;
     for (let i = 0; i < 5; i++) {
@@ -1154,17 +1153,17 @@ export default function App() {
       setTimeout(() => finishCareer(f, "APOSENTADORIA FORÇADA — CORPO NO LIMITE"), 300);
     }
   }
-
+ 
   function onRetireFinal() {
     finishCareer(fighter, "APOSENTADORIA VOLUNTÁRIA");
   }
-
+ 
   function onNewCareer() {
     setStage("start");
     setSession(null);
     setFighter(null);
   }
-
+ 
   return (
     <div className="min-h-screen uf-body" style={{ background: C.bgGrad, backgroundColor: C.bg }}>
       <style>{FONT_CSS}</style>
@@ -1184,3 +1183,4 @@ export default function App() {
     </div>
   );
 }
+ 
